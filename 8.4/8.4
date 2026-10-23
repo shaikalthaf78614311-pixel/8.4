@@ -1,0 +1,92 @@
+package com.example;
+
+import javafx.application.Application;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+
+public class MainApp extends Application {
+
+    // 1. THE FXML CONTROLLER CODE
+    public static class TipCalculatorController {
+        @FXML private TextField billAmountField;
+        @FXML private TextField tipPercentageField;
+        @FXML private Label tipAmountLabel;
+        @FXML private Label errorMessageLabel;
+
+        @FXML
+        private void calculateTip() {
+            // Check if fields are empty
+            if (billAmountField.getText().trim().isEmpty() || tipPercentageField.getText().trim().isEmpty()) {
+                errorMessageLabel.setText("Error: Fields cannot be empty.");
+                return;
+            }
+
+            try {
+                double billAmount = Double.parseDouble(billAmountField.getText());
+                double tipPercentage = Double.parseDouble(tipPercentageField.getText());
+
+                // Check for negative numbers
+                if (billAmount < 0 || tipPercentage < 0) {
+                    errorMessageLabel.setText("Error: Values cannot be negative.");
+                    return;
+                }
+
+                double tipAmount = billAmount * (tipPercentage / 100);
+                tipAmountLabel.setText(String.format("Tip Amount: $%.2f", tipAmount));
+                errorMessageLabel.setText(""); // Clear error on success
+            } catch (NumberFormatException e) {
+                errorMessageLabel.setText("Error: Invalid input. Please enter valid numbers.");
+            }
+        }
+
+        @FXML
+        private void reset() {
+            billAmountField.clear();
+            tipPercentageField.clear();
+            tipAmountLabel.setText("");
+            errorMessageLabel.setText("");
+        }
+    }
+
+    // 2. THE MAIN APPLICATION ENTRY POINT
+    @Override
+    public void start(Stage stage) throws Exception {
+        // Corrected XML/FXML definition with standardized namespaces
+        String fxmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<?import javafx.scene.control.Button?>\n" +
+                "<?import javafx.scene.control.Label?>\n" +
+                "<?import javafx.scene.control.TextField?>\n" +
+                "<?import javafx.scene.layout.VBox?>\n" +
+                "<VBox xmlns=\"http://javafx.com\" xmlns:fx=\"http://javafx.com\" " +
+                "fx:controller=\"com.example.MainApp$TipCalculatorController\" alignment=\"CENTER\" spacing=\"10\">\n" +
+                "    <Label text=\"Tip Calculator\" style=\"-fx-font-size: 20px;\"/>\n" +
+                "    <TextField fx:id=\"billAmountField\" promptText=\"Enter Bill Amount\" />\n" +
+                "    <TextField fx:id=\"tipPercentageField\" promptText=\"Enter Tip Percentage\" />\n" +
+                "    <Button text=\"Calculate Tip\" onAction=\"#calculateTip\" />\n" +
+                "    <Button text=\"Reset\" onAction=\"#reset\" />\n" +
+                "    <Label fx:id=\"tipAmountLabel\" />\n" +
+                "    <Label fx:id=\"errorMessageLabel\" style=\"-fx-text-fill: red;\" />\n" +
+                "</VBox>";
+
+        // Load the FXML directly from memory
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(fxmlContent.getBytes(StandardCharsets.UTF_8));
+        VBox root = fxmlLoader.load(inputStream);
+
+        Scene scene = new Scene(root, 400, 350);
+        stage.setTitle("Tip Calculator");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
